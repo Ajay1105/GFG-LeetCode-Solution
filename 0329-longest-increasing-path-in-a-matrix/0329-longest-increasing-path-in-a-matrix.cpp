@@ -1,34 +1,43 @@
 class Solution {
 public:
-    int help(vector<vector<int>>& matrix, int i, int j, vector<vector<int>>& h)
-    {
-        if(h[i][j] != -1) return h[i][j];
-        int x[] = {0,0,1,-1};
-        int y[] = {1,-1,0,0};
-        int tmp_ans = 0;
-        for(int n = 0; n < 4; n++)
-        {
-            int new_i = x[n] + i;
-            int new_j = y[n] + j;
-            if(new_i >= 0 && new_j >= 0 && new_i < matrix.size() && new_j < matrix[i].size()) 
-            {
-                if(matrix[new_i][new_j] > matrix[i][j])
-                tmp_ans = max(tmp_ans,1+help(matrix,new_i,new_j,h));
-            }
-        }
-        h[i][j] = tmp_ans;
-        return h[i][j];
+    int dp[205][205];
+
+    bool isValid(int i, int j, vector<vector<int>>& matrix) {
+        int n, m;
+        n = matrix.size(); m = matrix[0].size();
+        return i>=0&&j>=0&&i<n&&j<m;
     }
-    
+
+    int rec(int sr, int sc, vector<vector<int>>& matrix) {
+
+        if (dp[sr][sc]!=-1) return dp[sr][sc];
+
+        int ans = 1;
+        if (isValid(sr+1,sc,matrix)&&matrix[sr][sc]<matrix[sr+1][sc]) {
+            ans = max(ans, rec(sr+1,sc,matrix)+1);
+        }
+        if (isValid(sr,sc+1,matrix)&&matrix[sr][sc]<matrix[sr][sc+1]) {
+            ans = max(ans, rec(sr,sc+1,matrix)+1);
+        }       
+        if (isValid(sr-1,sc,matrix)&&matrix[sr][sc]<matrix[sr-1][sc]) {
+            ans = max(ans, rec(sr-1,sc,matrix)+1);
+        }       
+        if (isValid(sr,sc-1,matrix)&&matrix[sr][sc]<matrix[sr][sc-1]) {
+            ans = max(ans, rec(sr,sc-1,matrix)+1);
+        }       
+
+        return dp[sr][sc] = ans;        
+
+    }
+
     int longestIncreasingPath(vector<vector<int>>& matrix) {
-        vector<vector<int>> h (matrix.size(),vector<int>(matrix[0].size(),-1));
-        
-        int ans = 0;
-        for(int i = 0; i < matrix.size(); i++)
-        {
-            for(int j = 0; j < matrix[0].size(); j++)
-            {
-               ans = max(ans,1+help(matrix,i,j,h));
+        memset(dp,-1,sizeof(dp));
+        int n, m;
+        n = matrix.size(); m = matrix[0].size();
+        int ans = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                ans = max(ans, rec(i,j,matrix));
             }
         }
         return ans;
